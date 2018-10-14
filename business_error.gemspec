@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = 'Business Error Management by using OOP'
   spec.description   = 'Business Error Management by using OOP'
-  spec.homepage      = "http://github.com"
+  spec.homepage      = "http://github.com/zhandao/business_error"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0").reject do |f|

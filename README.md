@@ -1,6 +1,12 @@
 # BusinessError
 
+[![Gem Version](https://badge.fury.io/rb/business_error.svg)](https://badge.fury.io/rb/business_error)
+
 Business Error Management by using OOP
+
+```ruby
+Error::Api.invalid_token! # raise the error defined
+```
 
 ## Installation
 
@@ -106,7 +112,7 @@ group group_name = :private, code_start_at = nil, http: 200, &block
 NOT supported currently. It leads to method override,
 the last definition will leave.
 
-#### 3.x Skills
+#### 3.d Skills
 
 1. Use `mattr_reader` instead of `define` (alias) IF you're using Rubymine.
 
@@ -191,7 +197,7 @@ Error::Api.invalid_token.format!(:old)
 Error::Api.invalid_token.format!(:old, hello: 'world') # it's ok
 ```
 
-the key `only` is for [`output`]()
+the key `only` is for [`output`](https://github.com/zhandao/out_put)
 
 More complex formatting is to be done:
 ```ruby
@@ -207,7 +213,7 @@ config.formats[:old] = { format: {
 
 `format!` has an alias `render!`
 
-### 5. Rescue Error and render response by [`OutPut`]()
+### 5. Rescue Error and render response by [`OutPut`](https://github.com/zhandao/out_put)
 
 Just do:
 ```ruby
