@@ -3,10 +3,7 @@ require 'business_error/error'
 require 'business_error/config'
 
 module BusinessError
-  cattr_accessor :defs_tree do
-    { }
-  end
-
+  cattr_accessor(:defs_tree) { { } }
   attr_accessor :defs
 
   def mattr_reader name, message = '', code = _get_code, http: _get_http, group: _get_group
@@ -16,21 +13,17 @@ module BusinessError
     # TODO raise Error, name, message, code
     define_singleton_method("#{name}!") { raise Error.new(name, message, code, http) }
 
-    info = { name: name, msg: message, code: code, http: http }
-    if group == :public
-      (defs_tree[:public] ||= [ ]) << info
-    else
-      ((defs_tree[self.name] ||= { })[group] ||= [ ]) << info
-      ((@defs ||= { })[group] ||= []) << name
-    end
+    defs_tree[self.name] ||= { }
+    (defs_tree[self.name][group] ||= [ ]) << { name: name, msg: message, code: code, http: http }
+    ((@defs ||= { })[group] ||= []) << name
   end
 
   alias_method :define, :mattr_reader
 
-  def group group_name = :private, code_start_at = nil, http: 200, &block
+  def group group_name = :private, code_start_at = @code, http: _get_http, &block
     @group_name, @code, @http, group_name, code_start_at, http = group_name, code_start_at, http, @group_name, @code, @http
     instance_eval(&block)
-    @group_name, @code, @http, group_name, code_start_at, http = group_name, code_start_at, http, @group_name, @code, @http
+    @group_name, @code, @http = group_name, code_start_at, http
   end
 
   def _get_group
@@ -38,8 +31,7 @@ module BusinessError
   end
 
   def _get_code
-    code = @code
-    raise ArgumentError, 'Should give a code to define your business error' if code.nil?
+    raise ArgumentError, 'Should give a code to define your business error' if (code = @code).nil?
     @code = @code < 0 ? (code - 1) : (code + 1)
     code
   end

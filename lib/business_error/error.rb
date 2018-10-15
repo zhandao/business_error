@@ -4,7 +4,7 @@ module BusinessError
   class Error < StandardError
     attr_accessor :name, :msg, :code, :http_status
 
-    def initialize(name, msg, code, http_status = 200)
+    def initialize(name, msg, code, http_status = Config.default_http_status)
       msg = name.to_s.humanize if msg.blank?
       @name, @msg, @code, @http_status = name, msg, code, http_status
     end
