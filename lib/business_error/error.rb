@@ -2,15 +2,20 @@ require 'business_error/config'
 
 module BusinessError
   class Error < StandardError
-    attr_accessor :name, :msg, :code, :http_status
+    attr_accessor :name, :msg, :code, :http_status, :format
 
-    def initialize(name, msg, code, http_status = Config.default_http_status)
+    def initialize(name, msg, code, http_status = Config.default_http_status, format = Config.default_format)
       msg = name.to_s.humanize if msg.blank?
       @name, @msg, @code, @http_status = name, msg, code, http_status
+      self.format = format
     end
 
     def info
       @info ||= { code: @code, msg: @msg, http: @http_status }
+    end
+
+    def throw!
+      format ? format!(format) : (raise self)
     end
 
     def format!(template, **addition_content)

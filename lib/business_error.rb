@@ -6,12 +6,14 @@ module BusinessError
   cattr_accessor(:defs_tree) { { } }
   attr_accessor :defs
 
-  def mattr_reader name, message = '', code = _get_code, http: _get_http, group: _get_group
-    message = name.to_s.humanize if message.blank?
-
-    define_singleton_method(name) { Error.new(name, message, code, http) }
-    # TODO raise Error, name, message, code
-    define_singleton_method("#{name}!") { raise Error.new(name, message, code, http) }
+  def mattr_reader name,
+                   message = name.to_s.humanize,
+                   code = _get_code,
+                   http: _get_http,
+                   group: _get_group,
+                   format: @format
+    define_singleton_method(name) { Error.new(name, message, code, http, format) }
+    define_singleton_method("#{name}!") { send(name).throw! }
 
     defs_tree[self.name] ||= { }
     (defs_tree[self.name][group] ||= [ ]) << { name: name, msg: message, code: code, http: http }
@@ -20,10 +22,11 @@ module BusinessError
 
   alias_method :define, :mattr_reader
 
-  def group group_name = :private, code_start_at = @code, http: _get_http, &block
-    @group_name, @code, @http, group_name, code_start_at, http = group_name, code_start_at, http, @group_name, @code, @http
+  def group group_name = :private, code_start_at = @code, http: _get_http, format: @format, &block
+    @group_name, @code, @http, @format, group_name, code_start_at, http, format =
+        group_name, code_start_at, http, format, @group_name, @code, @http, @format
     instance_eval(&block)
-    @group_name, @code, @http = group_name, code_start_at, http
+    @group_name, @code, @http, @format = group_name, code_start_at, http, format
   end
 
   def _get_group
@@ -42,6 +45,10 @@ module BusinessError
 
   def http status_code
     @http_status = status_code
+  end
+
+  def format template
+    @format = template
   end
 
   def _get_http
