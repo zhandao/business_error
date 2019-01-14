@@ -27,7 +27,7 @@ module BusinessError
     alias render! format!
 
     def with!(**addition_content)
-      info.merge!(addition_content)
+      info.merge!(data: addition_content)
       raise self
     end
 
