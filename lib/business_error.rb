@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'business_error/version'
 require 'business_error/error'
 require 'business_error/config'

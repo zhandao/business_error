@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module BusinessError
   class Config
     cattr_accessor :formats, default: { }
