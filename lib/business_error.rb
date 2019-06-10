@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'request_store'
 
 require 'business_error/version'
 require 'business_error/error'
@@ -14,7 +15,11 @@ module BusinessError
                    http: _get_http,
                    group: _get_group,
                    format: @format
-    define_singleton_method(name) { Error.new(name, message, code, http, format) }
+    define_singleton_method(name) do |locale = _get_locale|
+      msg = message.is_a?(Hash) ? (message[locale] || message[:en]) : message
+      Error.new(name, msg, code, http, format)
+    end
+
     define_singleton_method("#{name}!") { send(name).throw! }
 
     defs_tree[self.name] ||= { }
@@ -31,16 +36,6 @@ module BusinessError
     @group_name, @code, @http, @format = group_name, code_start_at, http, format
   end
 
-  def _get_group
-    @group_name || :public
-  end
-
-  def _get_code
-    raise ArgumentError, 'Should give a code to define your business error' if (code = @code).nil?
-    @code = @code < 0 ? (code - 1) : (code + 1)
-    code
-  end
-
   def code_start_at code
     @code = code
   end
@@ -51,10 +46,6 @@ module BusinessError
 
   def format template
     @format = template
-  end
-
-  def _get_http
-    @http_status || Config.default_http_status
   end
 
   def define_px name, message = '', code = _get_code, http: _get_http
@@ -80,5 +71,25 @@ module BusinessError
 
   def all
     puts defs_tree.stringify_keys.to_yaml.gsub(' :', ' ')
+  end
+
+  # ===
+
+  def _get_group
+    @group_name || :public
+  end
+
+  def _get_code
+    raise ArgumentError, 'Should give a code to define your business error' if (code = @code).nil?
+    @code = @code < 0 ? (code - 1) : (code + 1)
+    code
+  end
+
+  def _get_http
+    @http_status || Config.default_http_status
+  end
+
+  def _get_locale
+    RequestStore.store[:err_locale] ||= 'en'
   end
 end
