@@ -57,10 +57,10 @@ module BusinessError
 
   def inherited(subclass)
     defs_tree[self.name]&.keys&.each do |group|
-      defs_tree[self.name][group].each do |name:, **_|
+      defs_tree[self.name][group].each do |e|
         # TODO: how to undef class method?
-        subclass.define_singleton_method(name) { raise NoMethodError }
-        subclass.define_singleton_method(name.to_s + '!') { raise NoMethodError }
+        subclass.define_singleton_method(e[:name]) { raise NoMethodError }
+        subclass.define_singleton_method(e[:name].to_s + '!') { raise NoMethodError }
       end
     end
   end
